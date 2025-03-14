@@ -10,6 +10,9 @@ namespace donut.net
         static double zoomSpeed = 0.1;         // Скорость приближения/отдаления
         const int consoleWidth = 80;
         const int consoleHeight = 22;
+        const string gradient = ".:!z#@";
+        // const string gradient =  ".,-~:;=!*#$@";
+        static int gradientSize = gradient.Length - 1;
 
         static void Main(string[] args)
         {
@@ -73,10 +76,8 @@ namespace donut.net
                         int screenY = (int)(11 + 15 * depth * yx);
 
                         // 6. Освещение с учетом всех вращений
-                        double normalX = cosTheta * cosPhi * cosY - sinPhi * sinY;
-                        double normalY = sinTheta * cosPhi * cosX - sinPhi * sinX;
-                        double normalZ = sinTheta * cosPhi * sinZ + sinPhi * cosZ;
-                        int brightness = (int)(8 * (normalX + normalY + normalZ));
+                        double normalZ = sinPhi; // Фиксированная Z-компонента нормали
+                        int brightness = Math.Max((int)(6 * normalZ), (int)(3.5 * -normalZ)); // Только вертикальная составляющая
 
                         int bufferIndex = screenX + consoleWidth * screenY;
                         if (consoleHeight > screenY && screenY > 0 &&
@@ -84,7 +85,7 @@ namespace donut.net
                             depth > depthBuffer[bufferIndex])
                         {
                             depthBuffer[bufferIndex] = depth;
-                            pixelBuffer[bufferIndex] = ".,-~:;=!*#$@"[Math.Clamp(brightness, 0, 11)];
+                            pixelBuffer[bufferIndex] = gradient[Math.Clamp(brightness, 0, gradientSize)];
                         }
                     }
                 }
@@ -94,9 +95,9 @@ namespace donut.net
                 Console.Write(pixelBuffer);
 
                 // Обновление углов вращения (теперь и по Z)
-                rotationAngleX += 0.04;
+                rotationAngleX += 0.08;
                 rotationAngleY += 0.02;
-                rotationAngleZ += 0.02;  // Новая ось вращения
+                rotationAngleZ += 0.01;  // Новая ось вращения
 
                 Thread.Sleep(20);
             }
